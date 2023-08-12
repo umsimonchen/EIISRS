@@ -220,7 +220,11 @@ This section exhibits some case studies of our model as supplements, in order to
 \end{figure}
 \noindent As shown in Figure \ref{fig_implicit}, the color shows the similarity between sampled neighbors and generated implicit neighbors. The closer the score to 1, the more similar the two users are, and the lighter the color is. Vice versa. We can observe from the graph that different candidate neighbors have different similarities. We can make an inference that the implicit neighbors are not always highly similar to the sampled user since the anchor user probably has diverse interests and cannot be exactly assigned to an agminated neighborhood. It is also evidence of why we apply social diversity simulation in our model.
 
-\subsection{Anlaysis of User Representation Collapse}
 \subsection{Additional Comparison}
+Contrastive Learning (CL), as one kind of self-supervised learning, is commonly believed to extract the general feature from the unlabeled data and regularize representations. It has been widely applied to deal with the noise problem and maximize mutual information (MI) in many fields \cite{deepInfoMax,S4L,selfCL}. Recently, many research
+
+\subsection{Anlaysis of User Representation Collapse}
+
+\nobibliography{aaai24}
 
 \end{document}
