@@ -27,6 +27,8 @@
 \usepackage{booktabs}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{adjustbox}
+\setcounter{table}{3}
+\setcounter{figure}{5}
 %
 % These are are recommended to typeset listings but not required. See the subsubsection on listing. Remove this block if you don't have listings in your paper.
 \usepackage{newfloat}
@@ -210,7 +212,7 @@ For model size, there are six parts that introduce trainable parameters: user/it
 For time complexity, analogously, there are also the six parts that cost our computational power. Regarding graph convolution, the time complexity is $\mathcal{O}(|\textbf{\textit{R}}^+|dL)$ for the user-item bipartite graph, and $\mathcal{O}(|\textbf{\textit{S}}^+|dL)$ for the social graph, where $|\textbf{\textit{R}}^+|$ and $|\textbf{\textit{S}}^+|$ denote the non-zero values of original graph respectively. Compared with previous graph-based recommendation systems, we drop out the feature transformation matrix and activation function, so the time complexity of graph convolution is relatively slower. For the self-gating units, layerwise attention unit, encoder/decoder of LGE-VAE, and aggregation matrix, the time complexity is as low as $\mathcal{O}(md^2)$. The most intractable time consumption is the selectors. Since we need to calculate the cosine similarity among all users, the time complexity used to be $\mathcal{O}(m^2d)$, where it would be exponentially increased along with the linear increment of our input data. To tackle this problem, for each epoch, we only choose a tiny subset of users $\mathcal{U}^+$ to do the processing, in which $|\mathcal{U}^+| \ll m$. After the two most time-consuming components, namely graph convolution and selectors, have been tailored without spoiling the effectiveness, our model is fairly efficient, too.
 
 \section{C{\quad}Case Study}
-This section exhibits some case studies of our model as supplements, in order to illustrate the validity of our hypothesis. For simplification, we take LastFM as an example. 
+This section exhibits some case studies of our model as supplements, in order to illustrate the validity of our hypothesis. For simplification, we take LastFM as the only dataset to implement the visualization analysis experiments. 
 \subsection{Analysis of Implicit Social Graph}
 \begin{figure}[ht!]
   \centering
@@ -220,8 +222,45 @@ This section exhibits some case studies of our model as supplements, in order to
 \end{figure}
 \noindent As shown in Figure \ref{fig_implicit}, the color shows the similarity between sampled neighbors and generated implicit neighbors. The closer the score to 1, the more similar the two users are, and the lighter the color is. Vice versa. We can observe from the graph that different candidate neighbors have different similarities. We can make an inference that the implicit neighbors are not always highly similar to the sampled user since the anchor user probably has diverse interests and cannot be exactly assigned to an agminated neighborhood. It is also evidence of why we apply social diversity simulation in our model.
 
+\begin{table*}[ht]\small
+    \centering
+    \flushleft
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}ccccc|cccc|cccc}
+        \cmidrule(l){1-13}
+        \multirow{2}{*}{Model} & \multicolumn{4}{c}{LastFM} & \multicolumn{4}{c}{Flickr} & \multicolumn{4}{c}{Yelp} \\ \cmidrule(l){2-5} \cmidrule(l){6-9} \cmidrule(l){10-13} \cmidrule(l){10-13}
+            & P@10  & R@10  & F1@10  & N@10 & P@10  & R@10 & F1@10  & N@10 & P@10 & R@10 & F1@10  & N@10 \\ \cmidrule(l){1-13}
+            SGL             &0.0911 &0.1848 &0.1220 &0.1708     &0.0019 &0.0042 &0.0026 &0.0034     &0.0033 &0.0276 &0.0059 &0.0145\\
+            
+            NCL            &0.0944 &0.1934 &0.1269 &0.1880     &0.0019 &0.0049 &0.0027 &0.0041     &0.0034 &0.0277 &0.0061 &0.0137\\ \cmidrule(l){1-13}
+            
+            SEPT        &0.1889 &0.1911 &0.1900 &0.2459     &\textbf{0.0038} &0.0042 &0.0040 &0.0047     &0.0061 &0.0239 &0.0097 &0.0148 \\
+
+            MHCN        &\textbf{0.1961} &\underline{0.1994} &\underline{0.1977} &\textbf{0.2547}    &\underline{0.0036} &\textbf{0.0050} &\textbf{0.0042} &\underline{0.0050}     &\underline{0.0063} &\underline{0.0241} &\underline{0.0100} &\underline{0.0150}  \\ \cmidrule(l){1-13}
+            
+            \multirow{2}{*}{EIISRS}     &\underline{0.1953} &\textbf{0.2004} &\textbf{0.1978} &\underline{0.2532}    &\underline{0.0036} &\underline{0.0047} &\underline{0.0041} &\textbf{0.0051}     &\textbf{0.0066} &\textbf{0.0244} &\textbf{0.0103} &\textbf{0.0153}\\
+            &$\boldsymbol{\downarrow}$\textbf{0.41}\% &$\boldsymbol{\uparrow}$\textbf{0.50}\% &$\boldsymbol{\uparrow}$\textbf{0.05}\% &$\boldsymbol{\downarrow}$\textbf{0.59}\%
+            
+            &$\boldsymbol{\downarrow}$\textbf{5.26}\% &$\boldsymbol{\downarrow}$\textbf{6.00}\% &$\boldsymbol{\downarrow}$\textbf{2.38}\%     &$\boldsymbol{\uparrow}$\textbf{2.00}\%
+
+            &$\boldsymbol{\uparrow}$\textbf{4.76}\%            &$\boldsymbol{\uparrow}$\textbf{1.24}\% &$\boldsymbol{\uparrow}$\textbf{3.00}\% &$\boldsymbol{\uparrow}$\textbf{2.00}\% \\ \cmidrule(l){1-13}
+           
+    \end{tabular*}
+    \caption{Overall recommendation performance comparison with CL-based recommendation systems.}
+    \label{table_addition}
+\end{table*}
+
 \subsection{Additional Comparison}
-Contrastive Learning (CL), as one kind of self-supervised learning, is commonly believed to extract the general feature from the unlabeled data and regularize representations. It has been widely applied to deal with the noise problem and maximize mutual information (MI) in many fields \cite{deepInfoMax,S4L,selfCL}. Recently, many research
+Contrastive Learning (CL), as one kind of self-supervised learning, is commonly believed to extract the general feature from the unlabeled data and regularize representations. It has been widely applied to deal with the noise problem and maximize mutual information (MI) in many fields \cite{deepInfoMax,S4L,selfCL}. Recently, many works have discovered the potential of CL in the recommendation field, in particular social recommendations. We are interested in the difference between those advanced CL-based recommendation models and EIISRS. Thus, we conduct additional experiments and compare with several representative models as shown below:
+\begin{itemize}
+    \item \textbf{SGL} \cite{sgl}: is one the earliest general recommendation models that introduce self-supervised learning to boost performance. It contrasts two graphs with each other after augmentation to encourage consistency of representations in different views.
+    \item \textbf{NCL} \cite{ncl}: is a recent model that designs the prototypical contrastive learning and incorporates structural/semantic neighbors to mitigate the noise introduced by CL.
+    \item \textbf{SEPT} \cite{SEPT}: is a recent social recommendation framework that employs self-supervised tri-training on augmented views. 
+    \item \textbf{MHCN} \cite{MHCN}: is the state-of-the-art model of social recommendation system, which leverages multi-channel hypergraph to extract high-order relations and CL to regain hierarchical information.
+\end{itemize}
+By analyzing the results in the Table \ref{table_addition}, we can draw the following conclusion:
+\begin{itemize}
+    \item 
+\end{itemize}
 
 \subsection{Anlaysis of User Representation Collapse}
 
