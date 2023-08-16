@@ -29,6 +29,7 @@
 \usepackage{adjustbox}
 \setcounter{table}{3}
 \setcounter{figure}{5}
+\usepackage{makecell}
 %
 % These are are recommended to typeset listings but not required. See the subsubsection on listing. Remove this block if you don't have listings in your paper.
 \usepackage{newfloat}
@@ -175,7 +176,7 @@
 \begin{document}
 
 \section{Technical Appendix}
-For a better understanding, we provide auxiliary resources regarding our proposed EIISRS model in the appendix, including algorithm, complexity analysis, and additional case studies.
+For a better understanding, we provide auxiliary resources regarding our proposed EIISRS model in the appendix, including algorithm, complexity analysis, additional case studies, and notations.
 \section{A{\quad}Algorithm}
 \begin{algorithm}[h]
     \caption{The first training epoch of EIISRS}
@@ -185,19 +186,19 @@ For a better understanding, we provide auxiliary resources regarding our propose
     \begin{algorithmic}[1]
         \For{each iteration}
             \For{each batch}
-                \State $\textbf{\textit{P}}^{(0)}_s, \textbf{\textit{P}}^{(0)}_r \gets$ Eq.(1); \textcolor{RoyalBlue}{\Comment{Self-gating Unit}}
+                \State $\textbf{\textit{P}}^{(0)}_s, \textbf{\textit{P}}^{(0)}_r \gets$ Eq.(1); \textcolor{RoyalBlue}{\small\Comment{Self-gating Unit}}
                 \For{$l=1:L$}
-                    \State $\textbf{\textit{P}}^{(l)}_s$, $\textbf{\textit{P}}^{(l)}_r$, $\textbf{\textit{Q}}^{(l)}$ $\gets$ Eq.(2)-(4);\textcolor{RoyalBlue}{\Comment{Graph Conv.}}
-                    \State $\boldsymbol{\mu}^{(l)}$, $\boldsymbol{\sigma}^{(1)} \gets$ Eq.(8);
-                    \State $\textbf{\textit{z}}^{(l)} \gets$ Eq.(9); \textcolor{RoyalBlue}{\Comment{Social Diversity Simulation}}
-                    \State $\boldsymbol{\alpha}_i \gets$ Eq.(5);
+                    \State $\textbf{\textit{P}}^{(l)}_s$, $\textbf{\textit{P}}^{(l)}_r$, $\textbf{\textit{Q}}^{(l)}$ $\gets$ Eq.(2)-(4);\textcolor{RoyalBlue}{\small\Comment{Graph Conv.}}
+                    \State $\boldsymbol{\mu}^{(l)}$, $\boldsymbol{\sigma}^{(l)} \gets$ Eq.(8);
+                    \State $\textbf{\textit{Z}}_s^{(l)} \gets$ Eq.(9); \textcolor{RoyalBlue}{\small\Comment{Social Diversity Simulation}}
+                    \State ${\alpha}_l \gets$ Eq.(5);
                     \State Calculate the $\mathcal{L}_{reconstruct}$ and $KLD$;
                 \EndFor
-                \State $\textbf{\textit{P}}_s = \sum_{i=0}^{L}\textbf{\textit{P}}_s^{(l)}$; \textcolor{RoyalBlue}{\Comment{Social Influence Propagation}}
+                \State $\widetilde{\textbf{\textit{P}}}_s = \sum_{i=0}^{L}\alpha_l\textbf{\textit{Z}}_s^{(l)}$; \textcolor{RoyalBlue}{\small\Comment{Social Influence Propagation}}
                 \State $\textbf{\textit{P}}_{final} \gets$ Eq.(14);
                 \State Calculate the pairwise BPR loss $\mathcal{L}_{rec}$;
             \EndFor
-            \State $\widetilde{\textbf{\textit{S}}} \gets$ Eq.(10)-(13); \textcolor{RoyalBlue}{\Comment{Social Influence Exploration}}
+            \State $\widetilde{\textbf{\textit{S}}} \gets$ Eq.(10)-(13); \textcolor{RoyalBlue}{\small\Comment{Social Influence Exploration}}
         \EndFor
         \State return $\textbf{\textit{P}}_{final}, \textbf{\textit{Q}}, \widetilde{\textbf{\textit{S}}}$
     \end{algorithmic}
@@ -259,10 +260,57 @@ Contrastive Learning (CL), as one kind of self-supervised learning, is commonly 
 \end{itemize}
 By analyzing the results in the Table \ref{table_addition}, we can draw the following conclusion:
 \begin{itemize}
-    \item 
+    \item In the additional comparison, we categorize all the models in the same way as the overall comparison in the main context. Concretely, SGL and NCL are graph-based general recommendation models, while SEPT and MHCN are graph-based social recommendation models. Similarly, even combined with CL, social recommendation models still outperform general recommendation models. It illustrates that social graph reserves unique information that cannot be revealed by any other advanced methods (i.e., CL).
+    \item Overall, EIISRS is neck to neck with CL-based models (i.e., SEPT, MHCN). On LastFM, the difference between EIISRS and MHCN is less than 1\%, which means they both perform their superiority equally. Besides, EIISRS performs rather better on Yelp than on Flickr. On Flickr, we focus on \textit{F1@10} and \textit{N@10} since SEPT and MHCN take the lead in \textit{P@10} and \textit{R@10} respectively. \textit{F1@10}, derived from \textit{P@10} and \textit{R@10}, evaluates the classification capacity, while \textit{N@10} evaluates the ranking capacity. According to the results, we infer that social influence provides significant information for better ranking, though it is not as useful as CL for classification. It is worth noting that, our model takes less time to train and is compatible with CL for well-developed architecture. We will reserve this part in future work.
 \end{itemize}
 
 \subsection{Anlaysis of User Representation Collapse}
+
+\section{D{\quad}Notations}
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{c|p{6.0cm}}
+        \hline
+         Symbols &Definition and Descriptions \\ \hline\hline
+         $U$    &The user set\\ \hline
+         $I$    &The item set\\ \hline
+         $m$    &The total number of users\\ \hline
+         $n$    &The total number of items\\ \hline
+         $\mathcal{I}(u)$   &The items that user $u$ bought\\ \hline
+         $\mathcal{N}(u)$   &The social neighbors that user $u$ had\\ \hline
+         $L$    &The total number of layers of graph convolution\\ \hline
+         $K$    &The total number of selectors\\ \hline
+         $\beta$    &The coefficient of KL Divergence\\ \hline
+         $\tau$ &The temperature parameter of selectors\\ \hline
+         $\gamma$   &The coefficient of LGE-VAE\\ \hline
+         $\alpha_l$ &The attention score at layer $l$\\ \hline
+         $\textbf{\textit{R}}\in \mathbb{R}^{m\times n}$  &The user-item interaction matrix (graph)\\ \hline
+         $\textbf{\textit{S}}\in \mathbb{R}^{m\times m}$  &The social matrix (graph)\\ \hline
+         $\tilde{\textbf{\textit{s}}}_u \in \mathbb{R}^{m}$ &The new neighbor vector of user $u$\\ \hline
+         $\widetilde{\textbf{\textit{S}}}\in \mathbb{R}^{m\times m}$ &The updated social matrix (graph)\\ \hline
+         $\textbf{\textit{P}}^{(l)}_{s}\in \mathbb{R}^{m\times d}$    &The social user representation at layer $l$\\ \hline
+         $\widetilde{\textbf{\textit{P}}}^{(l)}_{s}\in \mathbb{R}^{m\times d}$    &The final social user representation\\ \hline
+         $\textbf{\textit{P}}_{final}\in \mathbb{R}^{m\times d}$    &The final representation of user\\ \hline
+         $\textbf{\textit{P}}^{(l)}_{r}\in \mathbb{R}^{m\times d}$    &The bipartite user representation at layer $l$\\ \hline
+         $\textbf{\textit{Q}}^{(l)}\in \mathbb{R}^{n\times d}$    &The item representation at layer $l$\\ \hline
+         $\textbf{\textit{W}}_g\in \mathbb{R}^{d\times d}$    &The learnable weights of Self-Gating Units\\ \hline
+         $\textbf{\textit{b}}_g\in \mathbb{R}^{d}$    &The learnable biases of Self-Gating Units\\ \hline
+         $\textbf{\textit{D}}_{user}\in \mathbb{R}^{m\times m}$ &The degree matrix of user on $\textbf{\textit{R}}$\\ \hline
+         $\textbf{\textit{D}}_{item}\in \mathbb{R}^{n\times n}$ &The degree matrix of item on $\textbf{\textit{R}}^{\top}$\\ \hline
+         $\textbf{\textit{D}}_s\in \mathbb{R}^{m\times m}$    &The degree matrix of user on $\textbf{\textit{S}}$\\ \hline
+         $\boldsymbol{\mu}^{(l)}\in \mathbb{R}^{m\times d}$   &The mean of sampled neighborhood representation at layer $l$\\ \hline
+         $\boldsymbol{\sigma}^{(l)}\in \mathbb{R}^{m\times d}$    &The standard deviation of sampled neighborhood representation at layer $l$\\ \hline
+         $\boldsymbol{\epsilon}\in \mathbb{R}^{m\times d}$    &The Gaussian noise\\ \hline
+         $\textbf{\textit{Z}}_s^{(l)} \in \mathbb{R}^{m\times d}$  &The sampled neighborhood representation at layer $l$\\ \hline
+         $\textbf{\textit{W}}_{enc}\in \mathbb{R}^{d\times 2d}$    &The learnable variable of encoder in LGE-VAE\\ \hline
+         $\textbf{\textit{W}}_{att}\in \mathbb{R}^{d\times d}$    &The learnable variable of inner attention\\ \hline
+         $\textbf{\textit{a}}\in \mathbb{R}^{d}$  &The learnable variable of outer attention\\ \hline
+         $\textbf{\textit{W}}_{select}^{(i)}\in \mathbb{R}^m$   &The learnable variable of the $i^{th}$ selector\\ \hline
+         $\textbf{\textit{g}}\in \mathbb{R}^m$  &The Gumbel noise\\ \hline
+         $\textbf{\textit{W}}_{agg} \in \mathbb{R}^{d\times d}$ &The learnable variable of final aggregation of user representation\\ \hline
+    \end{tabular}
+    \caption{Notations.}
+\end{table}
 
 \nobibliography{aaai24}
 
